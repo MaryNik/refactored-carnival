@@ -1,0 +1,11 @@
+[Unit]
+Description=UnitForHttpEcho
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+WorkingDirectory=/srv
+ExecStart=/srv/http-echo -listen=:8080 -text="hello for Masha"
+
+[Install]
+WantedBy=multi-user.target 

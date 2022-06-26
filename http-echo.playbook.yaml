@@ -1,0 +1,23 @@
+---
+- name: Playbook for http-echo
+  hosts: all
+  become: yes
+  tasks:
+    - name: Download http-echo
+      unarchive:
+        src: "https://github.com/hashicorp/http-echo/releases/download/v0.2.3/http-echo_0.2.3_linux_amd64.tar.gz"
+        dest: /srv
+        remote_src: yes
+        creates: /srv/http-echo
+    - name: Copy systemd unit for http-echo
+      ansible.builtin.copy:
+        src: http-echo.service
+        dest: /lib/systemd/system/http-echo.service
+      register: systemd_unit
+    - name: Start http-echo
+      systemd:
+        name: http-echo
+        state: restarted
+        daemon_reload: yes
+        enabled: true
+      when: systemd_unit.changed
