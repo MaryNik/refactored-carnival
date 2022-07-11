@@ -1,0 +1,33 @@
+---
+- name: Install packages for apt-repository
+  apt:
+    update_cache: yes
+    pkg:
+      - curl
+      - gnupg2
+      - ca-certificates
+      - lsb-release
+      - ubuntu-keyring
+- name: Install signing key
+  apt_key:
+    id: 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
+    url: https://nginx.org/keys/nginx_signing.key
+    # TODO: move out to variable
+    keyring: /usr/share/keyrings/nginx-archive-keyring.gpg
+# - name: Find out release name
+#   debug:
+#     msg: "{{ansible_facts}}"
+#     msg: "{{distribution_release}}"
+- name: Add specified repository into sources list
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/ubuntu {{ansible_distribution_release}} nginx"
+    state: present
+- name: Note prior repository
+  copy:
+    content: 'Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n'
+    dest: /etc/apt/preferences.d/99nginx
+- name: Install nginx
+  apt:
+    update_cache: yes
+    pkg:
+      - nginx
