@@ -31,3 +31,8 @@
     update_cache: yes
     pkg:
       - nginx
+- name: Start nginx
+  systemd:
+    name: nginx
+    state: started
+    enabled: true
