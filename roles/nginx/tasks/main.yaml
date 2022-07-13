@@ -1,38 +1,86 @@
 ---
+- include_vars: letsencrypt.yml
+
 - name: Install packages for apt-repository
   apt:
     update_cache: yes
     pkg:
-      - curl
       - gnupg2
       - ca-certificates
-      - lsb-release
       - ubuntu-keyring
+
 - name: Install signing key
   apt_key:
     id: 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
     url: https://nginx.org/keys/nginx_signing.key
-    # TODO: move out to variable
-    keyring: /usr/share/keyrings/nginx-archive-keyring.gpg
+    keyring: "{{ keyring_path }}"
+
 # - name: Find out release name
 #   debug:
 #     msg: "{{ansible_facts}}"
 #     msg: "{{distribution_release}}"
+
 - name: Add specified repository into sources list
   apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/ubuntu {{ansible_distribution_release}} nginx"
+    repo: "deb [signed-by={{ keyring_path }}] http://nginx.org/packages/ubuntu {{ansible_distribution_release}} nginx"
     state: present
+
 - name: Note prior repository
   copy:
     content: 'Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n'
     dest: /etc/apt/preferences.d/99nginx
+
 - name: Install nginx
   apt:
     update_cache: yes
     pkg:
       - nginx
+
 - name: Start nginx
   systemd:
     name: nginx
     state: started
     enabled: true
+
+- name: Create letsencrypt dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: true
+  with_items:
+    - "/etc/letsencrypt/live/{{ domain_name }}"
+    - "/etc/letsencrypt/archive/{{ domain_name }}"
+
+- name: Put letsencrypt certs
+  copy:
+    content: "{{ item.pem }}"
+    dest: "{{ item.file_name }}"
+  with_items: "{{ certs }}"
+
+- name: Make symlinks
+  file:
+    state: link
+    path: "/etc/letsencrypt/live/{{ domain_name }}/{{ item }}.pem"
+    src: "../../archive/{{ domain_name }}/{{ item }}1.pem"
+  with_items:
+    - cert
+    - chain
+    - fullchain
+    - privkey
+
+- name: Put letsencrypt nginx ssl conf
+  copy:
+    src: options-ssl-nginx.conf
+    dest: /etc/letsencrypt/options-ssl-nginx.conf
+
+- name: Put nginx config
+  template:
+    src: nginx_conf.j2
+    dest: /etc/nginx/conf.d/{{ domain_name }}.conf
+  register: nginx_conf
+
+- name: Ensure nginx reload config
+  systemd:
+    name: nginx
+    state: reloaded
+  when: nginx_conf.changed

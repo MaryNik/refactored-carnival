@@ -1,0 +1,22 @@
+keyring_path: /usr/share/keyrings/nginx-archive-keyring.gpg
+
+app_port: 8080
+domain_name: devops-steps.com
+
+cert_pem: "{{ vault_cert_pem }}"
+chain_pem: "{{ vault_chain_pem }}"
+fullchain_pem: "{{ vault_fullchain_pem }}"
+privkey_pem: "{{ vault_privkey_pem }}"
+dh_params_pem: "{{ vault_dh_params_pem }}"
+
+certs:
+  - pem: "{{ cert_pem }}"
+    file_name: /etc/letsencrypt/archive/{{ domain_name }}/cert1.pem
+  - pem: "{{ chain_pem }}"
+    file_name: /etc/letsencrypt/archive/{{ domain_name }}/chain1.pem
+  - pem: "{{ fullchain_pem }}"
+    file_name: /etc/letsencrypt/archive/{{ domain_name }}/fullchain1.pem
+  - pem: "{{ privkey_pem }}"
+    file_name: /etc/letsencrypt/archive/{{ domain_name }}/privkey1.pem
+  - pem: "{{ dh_params_pem }}"
+    file_name: /etc/letsencrypt/ssl-dhparams.pem
