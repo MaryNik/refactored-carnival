@@ -5,8 +5,8 @@ After=network-online.target
 
 [Service]
 WorkingDirectory=/srv
-ExecStart=/srv/http-echo -listen=:8080 -text="hello for Masha"
+ExecStart=/srv/http-echo -listen=localhost:8080 -text="hello for Masha"
 TimeoutStopSec=1
 
 [Install]
-WantedBy=multi-user.target 
+WantedBy=multi-user.target
