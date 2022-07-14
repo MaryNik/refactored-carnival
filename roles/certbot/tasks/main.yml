@@ -1,0 +1,21 @@
+---
+- name: Install snap
+  apt:
+    update_cache: yes
+    pkg:
+      - snapd
+
+- name: Ensure that your version of snapd is up to date
+  snap:
+    name: core
+
+- name: Install certbot
+  snap:
+    name: certbot
+    classic: yes
+
+- name: Enable automatic renewal
+  systemd:
+    name: snap.certbot.renew.timer
+    enabled: true
+    state: started
