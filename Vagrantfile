@@ -69,6 +69,8 @@ Vagrant.configure("2") do |config|
   # SHELL
   config.vm.provision :ansible do |ansible|
     ansible.playbook = "playbook.yaml"
-    ansible.ask_vault_pass = true
+    ansible.raw_arguments  = [
+      '--vault-password-file=.vault-password'
+    ]
   end
 end
