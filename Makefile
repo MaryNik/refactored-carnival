@@ -1,6 +1,6 @@
-provision: inventory playbook.yaml
+provision: inventory playbook.yaml .vault-password
 	ansible-playbook \
 		--inventory=inventory \
 		--user=root \
-		--ask-vault-password \
+		--vault-password-file=.vault-password \
 		playbook.yaml

@@ -1,0 +1,29 @@
+---
+- name: Download signing key
+  get_url:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+    dest: "{{ keyring_path }}"
+
+- name: Add specified repository into sources list
+  apt_repository:
+    repo: "deb [signed-by={{ keyring_path }}] https://pkg.jenkins.io/debian-stable binary/"
+    filename: jenkins
+    state: present
+
+- name: Install java
+  apt:
+    update_cache: yes
+    pkg:
+      - openjdk-11-jdk
+
+- name: Install jenkins
+  apt:
+    update_cache: yes
+    pkg:
+      - jenkins
+
+- name: Start jenkins
+  systemd:
+    name: jenkins
+    state: started
+    enabled: true

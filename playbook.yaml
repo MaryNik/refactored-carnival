@@ -6,3 +6,4 @@
     - http-echo
     - nginx
     - certbot
+    - jenkins

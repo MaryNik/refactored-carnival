@@ -1,6 +1,6 @@
 keyring_path: /usr/share/keyrings/nginx-archive-keyring.gpg
 
-app_port: 8080
+app_port: 8081
 domain_name: devops-steps.com
 
 cert_pem: "{{ vault_cert_pem }}"
